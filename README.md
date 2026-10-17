@@ -101,12 +101,22 @@ Proje hakkında daha fazla teknik ayrıntı için aşağıdaki kılavuzları inc
 | :--- | :--- |
 | [🏛️ Mimari Tasarım](docs/ARCHITECTURE.md) | Sistem katmanları, veri akışı, LUKS/BTRFS bağlama ve VTE köprüsü |
 | [💻 Komut Satırı (CLI) Kılavuzu](docs/CLI_REFERENCE.md) | `parslinux-chroot`, `grub-reinstall`, `reset-password` vb. CLI kullanımı |
+| [🤖 AI & Claude Geliştirici Kılavuzu](docs/CLAUDE.md) | Otonom ajanlar ve yapay zeka asistanları için mimari rehberi |
+| [🛡️ Veri Güvenliği ve Sistem Koruma](docs/DATA_SAVING_GUIDE.md) | Disk koruma katmanları, dual-boot güvenliği ve veri kaybı önleme |
 | [📦 Kurulum ve Bağımlılıklar](docs/INSTALL.md) | Dağıtımlara göre bağımlılıklar ve kurulum adımları |
+| [📦 Flatpak Paketleme Kılavuzu](docs/FLATPAK_PACKAGING.md) | Flatpak manifestosu, sandbox ve sistem donanım izinleri |
 | [🧪 Test Stratejisi](docs/TESTING.md) | Otomatik birim testleri ve canlı USB doğrulama senaryoları |
 | [🐆 Fork & Geliştirme Notları](docs/FORK.md) | Yapılan geliştirmeler, yenilikler ve fork karşılaştırması |
+| [📊 İlerleme Raporu](docs/progress.md) | Proje fazları ve tamamlanma göstergeleri |
 | [📜 Sürüm Değişiklikleri](docs/CHANGELOG.md) | Sürüm geçmişi ve sürüm notları |
+| [📌 Sürüm Yönetim Politikası](docs/VERSION.md) | SemVer ve kod tabanı senkronizasyon noktaları |
 | [🤝 Katkıda Bulunma](docs/CONTRIBUTING.md) | Kodlama standartları ve PR süreci |
 | [🔒 Güvenlik Politikası](docs/SECURITY.md) | Güvenlik açıklarını bildirme rehberi |
+| [🌐 Yerel Depo Barındırma](docs/SELF_HOSTING_GUIDE.md) | Özel APT/Pacman repo kurulumu ve Live ISO entegrasyonu |
+| [🌍 Çeviri ve Yerelleştirme](docs/TRANSLATION_GUIDE.md) | Gettext PO/POT yönetimi ve yeni dil ekleme rehberi |
+| [🖥️ Uygulama Bağlama](docs/UYGULAMA_BAGLAMA.md) | Masaüstü ortamları ve PolicyKit kuralları entegrasyonu |
+| [💖 Bağış ve Destek](docs/PAYMENT_INTEGRATION.md) | Topluluk bağışları ve kurumsal sponsorluk modelleri |
+| [⚖️ Kullanım Şartları](docs/SARTLAR.md) | [Türkçe](docs/SARTLAR.md) ve [English](docs/TERMS.md) yasal sorumluluk reddi |
 
 ---
 
