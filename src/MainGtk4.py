@@ -12,7 +12,7 @@ import shutil
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 gi.require_version("Vte", "3.91")
-from gi.repository import Gtk, Adw, Gdk, Gio, GLib, Vte
+from gi.repository import Gtk, Adw, Gdk, Gio, GLib, Vte  # type: ignore
 
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -45,6 +45,7 @@ try:
     gettext.install("parslinux-boot-repair", "/usr/share/locale/")
 except Exception:
     pass
+_ = gettext.gettext
 
 APPVERSION = "1.2.0"
 try:
@@ -271,10 +272,11 @@ class ApplicationGtk4(Adw.Application):
         dialog.connect("response", on_response)
         dialog.present()
 
-    def vte_command(self, command, post_func, ask_user_confirm=True, environ=[]):
+    def vte_command(self, command, post_func, ask_user_confirm=True, environ=None):
+        extra_env = environ or []
         def execute():
             try:
-                env_vars = [f"{k}={v}" for k, v in os.environ.items()] + environ
+                env_vars = [f"{k}={v}" for k, v in os.environ.items()] + extra_env
                 if isinstance(command, str):
                     cmd_list = ["/bin/bash", "-c", command]
                 else:

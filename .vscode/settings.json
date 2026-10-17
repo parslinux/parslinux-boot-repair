@@ -1,0 +1,15 @@
+{
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "none",
+    "reportMissingModuleSource": "none",
+    "reportAttributeAccessIssue": "none"
+  },
+  "python.analysis.extraPaths": [
+    "./src",
+    "./src/scripts"
+  ],
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true
+  }
+}

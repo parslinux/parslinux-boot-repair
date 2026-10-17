@@ -8,7 +8,7 @@ import gettext
 gi.require_version("Gtk", "3.0")
 gi.require_version("Handy", "1")
 gi.require_version("Vte", "2.91")
-from gi.repository import Gtk, Handy, Gdk, Gio, GLib, Vte
+from gi.repository import Gtk, Handy, Gdk, Gio, GLib, Vte  # type: ignore
 
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -42,6 +42,7 @@ try:
     gettext.install("parslinux-boot-repair", "/usr/share/locale/")
 except Exception:
     pass
+_ = gettext.gettext
 Handy.init()
 
 APPVERSION = "1.2.0"
@@ -175,7 +176,7 @@ class Application(Gtk.Application):
             self.vte_terminal.get_column_count()
         )
 
-        if text != None:
+        if text is not None:
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
             clipboard.set_text(str(text[0]).strip(), -1)
             clipboard.store()
@@ -213,7 +214,7 @@ class Application(Gtk.Application):
 
     def on_row_reinstall_grub_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None or self.get_mbr(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None or self.get_mbr(widget, pre) is None:
                 return
 
             if os.path.exists("/sys/firmware/efi/efivars"):
@@ -235,7 +236,7 @@ class Application(Gtk.Application):
                 "removable={}".format("y" if removable else "N"),
             ]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             self.vte_command("grub-reinstall", post, environ=envs)
@@ -248,7 +249,7 @@ class Application(Gtk.Application):
 
     def on_row_fix_broken_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None:
                 return
 
             self.update_status_page(_("Fixing Broken Packages"), "content-loading-symbolic", _(
@@ -256,7 +257,7 @@ class Application(Gtk.Application):
 
             envs = ["disk={}".format(self.rootfs.name)]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             self.vte_command("fix-broken-packages", post, environ=envs)
@@ -269,7 +270,7 @@ class Application(Gtk.Application):
 
     def on_row_reset_password_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None or self.get_user(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None or self.get_user(widget, pre) is None:
                 return None
 
             self.password_page = self.new_page_input(
@@ -289,7 +290,7 @@ class Application(Gtk.Application):
                 "pass2={}".format(password2),
             ]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             self.vte_command("reset-password", post, False, environ=envs)
@@ -302,7 +303,7 @@ class Application(Gtk.Application):
 
     def on_row_update_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None:
                 return
 
             self.update_status_page(_("Updating Software Packages"), "content-loading-symbolic", _(
@@ -312,7 +313,7 @@ class Application(Gtk.Application):
                 "disk={}".format(self.rootfs.name),
             ]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             self.vte_command("full-upgrade", post, environ=envs)
@@ -325,7 +326,7 @@ class Application(Gtk.Application):
 
     def on_row_reinstall_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None or self.get_mbr(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None or self.get_mbr(widget, pre) is None:
                 return
 
             self.update_status_page(_("System Reinstallation"), "content-loading-symbolic", _(
@@ -336,7 +337,7 @@ class Application(Gtk.Application):
                 "mbr={}".format(self.mbr),
             ]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             reinstall_cmd = "parslinux-reinstall" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-reinstall")) else (shutil.which("parslinux-reinstall") or "parslinux-reinstall")
@@ -366,7 +367,7 @@ class Application(Gtk.Application):
                 _("Choose Partition for Filesystem Repair"), partition_names, partition_os, after_userdata)
 
         def after_userdata(widget=None, userdata=None, partition=None):
-            if partition == None:
+            if partition is None:
                 selected = self.repair_page.listbox.get_selected_row().get_title()
                 part = next((x for x in self.partitions if x.name == selected), None)
                 return process_partition(after_userdata, part)
@@ -394,14 +395,14 @@ class Application(Gtk.Application):
                 self.mount_lvm(part, process_partition, pending_func)
                 return None
 
-            if pending_func != None:
+            if pending_func is not None:
                 pending_func(None, None, part)
 
         self.row_init_func(pre)
 
     def on_row_reset_config_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None or self.get_user(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None or self.get_user(widget, pre) is None:
                 return
 
             self.update_status_page(_("Resetting User Settings"), "content-loading-symbolic", _(
@@ -409,7 +410,7 @@ class Application(Gtk.Application):
 
             envs = []
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) else (shutil.which("parslinux-chroot") or "parslinux-chroot")
@@ -428,7 +429,7 @@ class Application(Gtk.Application):
 
     def on_row_dump_log_activated(self, widget):
         def pre():
-            if self.get_rootfs(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None:
                 return
 
             liveuser_home = self.run_command(["bash", "-c", 'grep "x:1000:" /etc/passwd | cut -f 6 -d ":"'])
@@ -439,7 +440,7 @@ class Application(Gtk.Application):
                 "disk={}".format(self.rootfs.name),
             ]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
             self.vte_command(["dump-info-log", liveuser_home], post, False, environ=envs)
@@ -454,7 +455,7 @@ class Application(Gtk.Application):
         def pre():
             self.update_status_page(_("Entering Chroot Environment"), "content-loading-symbolic", _(
                 "We're accessing a special system environment called chroot at your request. This allows you to make changes as if you were working directly on your installed operating system. Please wait while we set up this environment to address your needs."), False, True)
-            if self.get_rootfs(widget, pre) == None or self.get_user(widget, pre) == None:
+            if self.get_rootfs(widget, pre) is None or self.get_user(widget, pre) is None:
                 return
 
             # show terminal page
@@ -464,7 +465,7 @@ class Application(Gtk.Application):
                 "disk={}".format(self.rootfs.name),
             ]
 
-            if self.rootfs.root_subvol != None:
+            if self.rootfs.root_subvol is not None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
 
@@ -493,14 +494,15 @@ class Application(Gtk.Application):
         if stop_spinner:
             self.spinner_loading.stop()
 
-    def vte_command(self, command, post_func, ask_user_confirm=True, environ=[]):
+    def vte_command(self, command, post_func, ask_user_confirm=True, environ=None):
         try:
+            extra_env = environ or []
             if ask_user_confirm and not self.ask_confirmation(_("Are you sure you want to continue? This action is irreversible and may cause data loss.")):
                 self.update_status_page(_("Operation Cancelled"), "dialog-warning-symbolic", _(
                     "The operation has been cancelled by the user."), True, True)
                 return
-            env_vars = [f'{key}={value}' for key, value in os.environ.items()] + environ
-            if type(command) == str:
+            env_vars = [f'{key}={value}' for key, value in os.environ.items()] + extra_env
+            if isinstance(command, str):
                 command = ["/bin/bash", "-c", command]
             exec = self.vte_terminal.spawn_async(
                 Vte.PtyFlags.DEFAULT, os.environ['HOME'], command, env_vars, GLib.SpawnFlags.SEARCH_PATH, None, None, -1, None, self.vte_cb)
@@ -516,7 +518,7 @@ class Application(Gtk.Application):
 
     def vte_cb(self, Terminal, pid, error):
         Terminal.reset(True, True)
-        if error != None or pid == -1:
+        if error is not None or pid == -1:
             self.update_status_page(_("An error occured"), "dialog-error-symbolic", _(
                 "An error occurred before the command has been executed"), True, True)
             return
@@ -527,7 +529,7 @@ class Application(Gtk.Application):
             self.update_status_page(_("An error occured"), "dialog-error-symbolic", _(
                 "An error occured while executing the command. Please check the logs"), True, True)
             return
-        if post_func == None:
+        if post_func is None:
             self.update_status_page(_("An error occured"), "dialog-error-symbolic", _(
                 "An error occurred after the command has been executed."), True, True)
             return
@@ -552,12 +554,12 @@ class Application(Gtk.Application):
 
     def get_rootfs(self, widget, pending_func):
         def pre():
-            if hasattr(self, 'rootfs') and self.rootfs != None:
+            if hasattr(self, 'rootfs') and self.rootfs is not None:
                 return self.rootfs
             self.rootfs_list = self.detect_rootfs()
-            if self.rootfs_list == None or len(self.rootfs_list) == 0:
+            if self.rootfs_list is None or len(self.rootfs_list) == 0:
                 self.rootfs_list = self.list_partitions()
-            if self.rootfs_list == None or len(self.rootfs_list) == 0:
+            if self.rootfs_list is None or len(self.rootfs_list) == 0:
                 self.update_status_page(_("Root Filesystem Missing"), "dialog-error-symbolic", _(
                     "We couldn't locate the root filesystem on your system. This could be due to a disk failure, misconfiguration, or other issues. Please ensure that your disk is properly connected and configured."), True, True)
                 return None
@@ -593,14 +595,14 @@ class Application(Gtk.Application):
                 self.rootfs = None
             self.update_status_page(_("Root Filesystem Chosen"), "emblem-ok-symbolic", _(
                 "You've selected the root filesystem for further action."), False, False)
-            if pending_func != None:
+            if pending_func is not None:
                 pending_func()
 
         return pre()
 
     def get_user(self, widget, pending_func):
         def pre():
-            if not hasattr(self, 'user') or self.user == None:
+            if not hasattr(self, 'user') or self.user is None:
                 users = self.list_users(self.rootfs)
                 if len(users) == 0:
                     self.update_status_page(_("No Users Detected"), "dialog-error-symbolic", _(
@@ -617,13 +619,13 @@ class Application(Gtk.Application):
             self.user = self.users_page.listbox.get_selected_row().get_title()
             self.update_status_page(_("User Chosen"), "emblem-ok-symbolic", _(
                 "You've selected a user for further action. This step is important for making changes specific to the chosen user."), False, False)
-            if pending_func != None:
+            if pending_func is not None:
                 pending_func()
         return pre()
 
     def get_mbr(self, widget, pending_func):
         def pre():
-            if not hasattr(self, 'mbr') or self.mbr == None:
+            if not hasattr(self, 'mbr') or self.mbr is None:
                 mbrs = self.list_mbrs()
                 if len(mbrs) == 0:
                     self.update_status_page(_("Master Boot Record (MBR) Missing"), "dialog-error-symbolic", _(
@@ -640,7 +642,7 @@ class Application(Gtk.Application):
             self.mbr = self.mbr_page.listbox.get_selected_row().get_title()
             self.update_status_page(_("MBR chosen"), "emblem-ok-symbolic", _(
                 "You've successfully selected the Master Boot Record (MBR). This selection is essential for configuring your system's boot process."), False, False)
-            if pending_func != None:
+            if pending_func is not None:
                 pending_func()
         return pre()
 
@@ -679,7 +681,7 @@ class Application(Gtk.Application):
             if part.fstype == "crypto_LUKS":
                 prt_Types = self.run_command(["lsblk", "-rno", "TYPE", part.path]).strip().split()
                 if len(prt_Types) > 1 and prt_Types[1] == "crypt":
-                   part.name = self.run_command(["lsblk", "-rno", NAME, part.path]).strip().split()[1]
+                   part.name = self.run_command(["lsblk", "-rno", "NAME", part.path]).strip().split()[1]
                    part.path = "/dev/mapper/{}".format(part.name)
                    part.fstype = self.run_command(["lsblk", "-rno", "FSTYPE", part.path]).strip().split()[0]
                 else:    
@@ -712,7 +714,7 @@ class Application(Gtk.Application):
         if part.fstype == "btrfs" and not os.path.exists(TEMPDIR + "/etc/os-release"):
             subvol, part.is_rootfs = self.detect_btrfs_rootfs_subvolume(
                 TEMPDIR)
-            if subvol != None:
+            if subvol is not None:
                 part.root_subvol = subvol
 
         self.run_command(["umount", "-l", TEMPDIR])
@@ -755,7 +757,7 @@ class Application(Gtk.Application):
                     text=_("An error occurred while unlocking the encrypted device. Please check the password and try again.")
                 )
                 self.rootfs = None
-                if pending_func != None:
+                if pending_func is not None:
                     pending_func()
                 dialog.run()
                 dialog.destroy()
@@ -771,9 +773,9 @@ class Application(Gtk.Application):
                 return
             if part.fstype == "crypto_LUKS":
                 return
-            if handler_func != None:
+            if handler_func is not None:
                 handler_func(pending_func, part)
-            elif pending_func != None:
+            elif pending_func is not None:
                 pending_func()
         pre()
 
@@ -794,7 +796,7 @@ class Application(Gtk.Application):
 
         def after_userdata(widget, userdata, vg_name=None):
             part, handler_func, pending_func = userdata
-            if vg_name == None:
+            if vg_name is None:
                 vg_name = self.vg_page.listbox.get_selected_row().get_title()
             self.run_command(["vgchange", "-ay", vg_name])
 
@@ -818,7 +820,7 @@ class Application(Gtk.Application):
 
         def after_lvm_selection(widget, userdata, lv_name=None):
             vg_name, part, handler_func, pending_func = userdata
-            if lv_name == None:
+            if lv_name is None:
                 lv_name = self.lv_page.listbox.get_selected_row().get_title()
 
             part.path = "/dev/{}/{}".format(vg_name, lv_name)
@@ -826,9 +828,9 @@ class Application(Gtk.Application):
             part.is_lvm = False
 
 
-            if handler_func != None:
+            if handler_func is not None:
                 handler_func(pending_func, part)
-            elif pending_func != None:
+            elif pending_func is not None:
                 pending_func()
         pre()
 
@@ -844,7 +846,7 @@ class Application(Gtk.Application):
                 continue
 
             for part in os.listdir('/sys/block/{}/'.format(block), ):
-                if re.search(r'[0-9]$', part) == None:
+                if re.search(r'[0-9]$', part) is None:
                     continue
 
                 partition = Partition()
@@ -852,7 +854,7 @@ class Application(Gtk.Application):
                 partition.path = "/dev/" + part
                 for x in ["FSTYPE", "UUID", "SIZE", "LABEL", "MOUNTPOINT"]:
                     output = self.run_command(["lsblk", "-rno", x, partition.path]).split("\n")[0]
-                    if output == None:
+                    if output is None:
                         continue
                     partition.__setattr__(x.lower(), output.strip())
                     partition.is_luks = (partition.fstype == "crypto_LUKS")
@@ -866,7 +868,7 @@ class Application(Gtk.Application):
 
     def list_users(self, rootfs):
         TEMPDIR = self.run_command(["mktemp", "-d"])
-        if self.rootfs.root_subvol != None:
+        if self.rootfs.root_subvol is not None:
             self.run_command(["mount", "-o", "subvol={}".format(rootfs.root_subvol), "/dev/{}".format(rootfs.name), TEMPDIR])
         else:
             self.run_command(["mount", "/dev/{}".format(rootfs.name) , TEMPDIR])
@@ -928,7 +930,7 @@ class Application(Gtk.Application):
         for child in self.carousel_questions.get_children():
             self.carousel_questions.remove(child)
 
-        if row_subtitles == None or len(row_subtitles) == 0:
+        if row_subtitles is None or len(row_subtitles) == 0:
             row_subtitles = ["" for x in row_titles]
         elif len(row_titles) != len(row_subtitles):
             raise ValueError(
