@@ -93,6 +93,23 @@ sudo make install
 
 ---
 
+## 📚 Detaylı Dokümantasyon (`docs/`)
+
+Proje hakkında daha fazla teknik ayrıntı için aşağıdaki kılavuzları inceleyebilirsiniz:
+
+| Doküman | İçerik |
+| :--- | :--- |
+| [🏛️ Mimari Tasarım](docs/ARCHITECTURE.md) | Sistem katmanları, veri akışı, LUKS/BTRFS bağlama ve VTE köprüsü |
+| [💻 Komut Satırı (CLI) Kılavuzu](docs/CLI_REFERENCE.md) | `parslinux-chroot`, `grub-reinstall`, `reset-password` vb. CLI kullanımı |
+| [📦 Kurulum ve Bağımlılıklar](docs/INSTALL.md) | Dağıtımlara göre bağımlılıklar ve kurulum adımları |
+| [🧪 Test Stratejisi](docs/TESTING.md) | Otomatik birim testleri ve canlı USB doğrulama senaryoları |
+| [🐆 Fork & Geliştirme Notları](docs/FORK.md) | Yapılan geliştirmeler, yenilikler ve fork karşılaştırması |
+| [📜 Sürüm Değişiklikleri](docs/CHANGELOG.md) | Sürüm geçmişi ve sürüm notları |
+| [🤝 Katkıda Bulunma](docs/CONTRIBUTING.md) | Kodlama standartları ve PR süreci |
+| [🔒 Güvenlik Politikası](docs/SECURITY.md) | Güvenlik açıklarını bildirme rehberi |
+
+---
+
 ## 🚀 Geliştirici ve Yönetim Araçları
 
 Pars Linux projelerine özgü modüler betik otomasyonu sunulmaktadır:
