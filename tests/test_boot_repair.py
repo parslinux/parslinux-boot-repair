@@ -19,7 +19,6 @@ class TestParsLinuxBootRepair(unittest.TestCase):
     def test_python_syntax(self):
         """Ensure all Python scripts and modules compile without syntax errors."""
         python_files = [
-            os.path.join(ROOT_DIR, "parslinux-boot-repair"),
             os.path.join(SRC_DIR, "Main.py"),
             os.path.join(SRC_DIR, "MainGtk4.py"),
             os.path.join(SCRIPTS_DIR, "parslinux-mount-rootfs"),
@@ -39,6 +38,7 @@ class TestParsLinuxBootRepair(unittest.TestCase):
     def test_bash_syntax(self):
         """Ensure all Bash scripts pass bash -n validation."""
         bash_scripts = [
+            os.path.join(ROOT_DIR, "parslinux-boot-repair"),
             os.path.join(SCRIPTS_DIR, "check-filesystem"),
             os.path.join(SCRIPTS_DIR, "dump-info-log"),
             os.path.join(SCRIPTS_DIR, "fix-broken-packages"),
