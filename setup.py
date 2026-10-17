@@ -69,12 +69,16 @@ data_files = [
     ),
     (
         "share/parslinux/parslinux-boot-repair/data/ui",
-        ["src/data/ui/AppWindow.ui"],
+        [
+            "src/data/ui/AppWindow.ui",
+            "src/data/ui/AppWindowGtk4.ui",
+        ],
     ),
     (
         "share/parslinux/parslinux-boot-repair/src",
         [
             "src/Main.py",
+            "src/MainGtk4.py",
             "src/__version__",
         ],
     ),

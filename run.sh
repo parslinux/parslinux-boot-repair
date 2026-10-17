@@ -21,6 +21,8 @@ show_help() {
     echo "  -h, --help        Show this help message and exit"
     echo "  -t, --test        Run the automated test suite"
     echo "  -d, --dev         Run directly without Polkit pkexec escalation"
+    echo "  --gtk3            Force run with legacy GTK3 + Libhandy backend"
+    echo "  --gtk4            Run with modern GTK4 + Libadwaita backend (Default)"
     echo "  -c, --compile     Compile GResource and locale MO files only"
     echo "  -v, --verbose     Verbose output"
     echo ""
@@ -52,6 +54,7 @@ compile_assets() {
 RUN_DEV=0
 RUN_TEST=0
 COMPILE_ONLY=0
+FORCE_GTK3=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -65,6 +68,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         -d|--dev|--no-root)
             RUN_DEV=1
+            shift
+            ;;
+        --gtk3)
+            FORCE_GTK3=1
+            shift
+            ;;
+        --gtk4)
+            FORCE_GTK3=0
             shift
             ;;
         -c|--compile)
@@ -92,13 +103,23 @@ if [ "$RUN_TEST" -eq 1 ]; then
     exit 0
 fi
 
-echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair..."
 export PATH="$DIR/src/scripts:$PATH"
 export PYTHONPATH="$DIR/src:$PYTHONPATH"
 
 if [ "$RUN_DEV" -eq 1 ]; then
     export NO_PKEXEC=1
-    python3 src/Main.py "$@"
+    if [ "$FORCE_GTK3" -eq 1 ]; then
+        echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (Dev GTK3 mode)..."
+        python3 src/Main.py "$@"
+    else
+        echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (Dev GTK4 / Libadwaita mode)..."
+        python3 src/MainGtk4.py "$@"
+    fi
 else
-    ./parslinux-boot-repair "$@"
+    echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair..."
+    if [ "$FORCE_GTK3" -eq 1 ]; then
+        ./parslinux-boot-repair --gtk3 "$@"
+    else
+        ./parslinux-boot-repair "$@"
+    fi
 fi

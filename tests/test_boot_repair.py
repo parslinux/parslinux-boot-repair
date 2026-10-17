@@ -21,6 +21,7 @@ class TestParsLinuxBootRepair(unittest.TestCase):
         python_files = [
             os.path.join(ROOT_DIR, "parslinux-boot-repair"),
             os.path.join(SRC_DIR, "Main.py"),
+            os.path.join(SRC_DIR, "MainGtk4.py"),
             os.path.join(SCRIPTS_DIR, "parslinux-mount-rootfs"),
             os.path.join(SCRIPTS_DIR, "reset-password"),
             os.path.join(SCRIPTS_DIR, "search-operating-system"),
@@ -94,6 +95,17 @@ class TestParsLinuxBootRepair(unittest.TestCase):
         self.assertEqual(root.tag, "gresources")
         prefixes = [g.get("prefix") for g in root.findall("gresource")]
         self.assertIn("/org/parslinux/boot-repair", prefixes)
+
+    def test_gtk4_ui_xml(self):
+        """Validate GTK4 AppWindowGtk4.ui XML structure."""
+        ui_file = os.path.join(DATA_DIR, "ui", "AppWindowGtk4.ui")
+        self.assertTrue(os.path.exists(ui_file), "AppWindowGtk4.ui missing")
+        tree = ET.parse(ui_file)
+        root = tree.getroot()
+        self.assertEqual(root.tag, "interface")
+        window = root.find(".//object[@id='window_main']")
+        self.assertIsNotNone(window)
+        self.assertEqual(window.get("class"), "AdwApplicationWindow")
 
     def test_desktop_file_contents(self):
         """Ensure desktop entry contains valid metadata."""

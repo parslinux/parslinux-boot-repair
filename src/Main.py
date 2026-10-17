@@ -1042,13 +1042,19 @@ class Partition(object):
         self.is_luks = False
         self.is_lvm = False
 
-if os.geteuid() != 0:        
-        Gtk.MessageDialog(
+def main():
+    if os.geteuid() != 0 and os.environ.get("NO_PKEXEC", "0") != "1":        
+        dialog = Gtk.MessageDialog(
             message_type=Gtk.MessageType.ERROR,
             buttons=Gtk.ButtonsType.CLOSE,
             text=_("This application requires root privileges to run. Please run it as root.")
-        ).run()
-        sys.exit(1)
-    
-app = Application()
-app.run(sys.argv)
+        )
+        dialog.run()
+        dialog.destroy()
+        return 1
+        
+    app = Application()
+    return app.run(sys.argv)
+
+if __name__ == "__main__":
+    sys.exit(main())

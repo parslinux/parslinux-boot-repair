@@ -1,0 +1,65 @@
+# Git
+.git/
+.gitignore
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Packaging Artifacts (Debian & Arch)
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/parslinux-boot-repair/
+debian/*.substvars
+debian/*.debhelper.log
+*.deb
+*.build
+*.buildinfo
+*.changes
+*.upload
+*.pkg.tar.*
+pkg/
+srcdir/
+
+# Compiled Binary Assets
+*.mo
+mo/
+src/data/*.gresource
+
+# Disk Dumps & Logs
+*.iso
+*.img
+*.bin
+*.raw
+*.log
+*.zip
+
+# IDE & Editor Files
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db

@@ -20,4 +20,19 @@ elif os.path.isdir("/usr/share/parslinux/parslinux-boot-repair/"):
 elif os.path.isdir("/usr/share/pardus/pardus-boot-repair/"):
     sys.path.insert(0, "/usr/share/pardus/pardus-boot-repair/")
 
-import Main
+# Check if GTK3 fallback is requested
+use_gtk3 = "--gtk3" in sys.argv
+if use_gtk3:
+    sys.argv.remove("--gtk3")
+
+if not use_gtk3:
+    try:
+        import MainGtk4
+        sys.exit(MainGtk4.main())
+    except Exception as e:
+        # Fallback to GTK3 if GTK4 / Libadwaita is not available
+        import Main
+        sys.exit(Main.main() if hasattr(Main, "main") else 0)
+else:
+    import Main
+    sys.exit(Main.main() if hasattr(Main, "main") else 0)
