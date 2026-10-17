@@ -17,9 +17,10 @@ fi
 set -e
 if [[ "$fs" == "ext4" ]] ; then
     yes "" | fsck.ext4 -f -y /dev/$disk
-
 elif [[ "$fs" == "btrfs" ]] ; then
     yes "" | btrfs check --force --repair /dev/$disk
+elif command -v "fsck.$fs" >/dev/null 2>&1 ; then
+    "fsck.$fs" -y /dev/$disk
 else
-    fsck.$fs /dev/$disk
+    fsck -t "$fs" -y "/dev/$disk"
 fi

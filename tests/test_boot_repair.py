@@ -7,6 +7,7 @@ import unittest
 import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
+import importlib.util
 from importlib.machinery import SourceFileLoader
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -121,7 +122,11 @@ class TestParsLinuxBootRepair(unittest.TestCase):
     def test_os_detection_logic(self):
         """Simulate operating system detection logic on mock directories."""
         search_os_path = os.path.join(SCRIPTS_DIR, "search-operating-system")
-        mod = SourceFileLoader("search_os", search_os_path).load_module()
+        loader = SourceFileLoader("search_os", search_os_path)
+        spec = importlib.util.spec_from_loader("search_os", loader)
+        self.assertIsNotNone(spec)
+        mod = importlib.util.module_from_spec(spec)
+        loader.exec_module(mod)
 
         with tempfile.TemporaryDirectory() as tmp:
             # 1. ParsLinux EFI test
@@ -146,6 +151,41 @@ class TestParsLinuxBootRepair(unittest.TestCase):
             with open(os.path.join(win_dir, "ntoskrnl.exe"), "w") as f:
                 f.write("mock")
             self.assertEqual(mod.detect_os(tmp), "Windows")
+
+    def test_mount_rootfs_fstab_logic(self):
+        """Ensure fstab parsing handles UUID and non-root mount points cleanly."""
+        mount_script = os.path.join(SCRIPTS_DIR, "parslinux-mount-rootfs")
+        loader = SourceFileLoader("mount_rootfs", mount_script)
+        spec = importlib.util.spec_from_loader("mount_rootfs", loader)
+        self.assertIsNotNone(spec)
+        mod = importlib.util.module_from_spec(spec)
+        loader.exec_module(mod)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            os.environ["DESTDIR"] = tmp
+            self.assertEqual(mod.get_destdir(), tmp)
+
+            # Test fstab with comments, root mount, and UUID translation
+            etc_dir = os.path.join(tmp, "etc")
+            os.makedirs(etc_dir, exist_ok=True)
+            fstab_path = os.path.join(etc_dir, "fstab")
+            with open(fstab_path, "w") as f:
+                f.write(
+                    "# Comment line\n"
+                    "UUID=1234-ABCD / ext4 defaults 0 1\n"
+                    "UUID=5678-EFGH /boot/efi vfat umask=0077 0 1\n"
+                )
+
+            # Function should parse without exceptions even if mount points are simulated
+            mod.mount_fstab_entries(tmp)
+
+    def test_open_luks_mapper_path_consistency(self):
+        """Ensure parslinux-open-luks-lvm does not use inconsistent leading slashes in mapper names."""
+        script_path = os.path.join(SCRIPTS_DIR, "parslinux-open-luks-lvm")
+        with open(script_path, "r") as f:
+            content = f.read()
+        self.assertNotIn('disk="/mapper/', content)
+        self.assertIn('disk="mapper/', content)
 
 
 if __name__ == "__main__":

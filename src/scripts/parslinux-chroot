@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set +e
-export export DESTDIR="$1"
+export DESTDIR="$1"
 if [[ $UID -ne 0 ]] ; then
     echo "You must be root!"
     exit 1

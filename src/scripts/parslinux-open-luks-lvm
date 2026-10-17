@@ -29,7 +29,7 @@ if $(cryptsetup isLuks /dev/$disk); then
     if [[ $(lsblk -r -o NAME,TYPE /dev/$disk | grep crypt | awk '{print $1 }') == "" ]]; then 
         LUKS_NAME="luks-$(date +%d-%m-%y_%H-%M-%S)"
         cryptsetup open /dev/$disk $LUKS_NAME
-        disk="/mapper/$LUKS_NAME"
+        disk="mapper/$LUKS_NAME"
         fs="$(lsblk -rno FSTYPE /dev/$disk | head -n 1)"
     else
         disk="mapper/$(lsblk -r -o NAME,TYPE /dev/$disk | grep crypt | awk '{print $1 }')"

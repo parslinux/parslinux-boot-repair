@@ -24,7 +24,9 @@ if [[ -d $old ]] ; then
 fi
 mkdir -p "$old"
 
-mv $new/* $old/ || true
+for item in "$new"/*; do
+    [ "$item" != "$old" ] && mv "$item" "$old/"
+done
 cp -prvf /source/* /target/
 sync
 cp $old/etc/fstab $new/etc/fstab

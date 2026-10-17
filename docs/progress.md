@@ -11,7 +11,7 @@ Bu belge, **Pars Linux Boot Repair** (`parslinux-boot-repair`) projesinin geliş
 - **Proje Durumu**: Kararlı, Modernize Edilmiş ve Tamamlanmış
 - **Geçerli Sürüm**: `1.2.0-parslinux1`
 - **Arayüz Desteği**: %100 Saf GTK 4 + Libadwaita (Varsayılan) + GTK 3 Libhandy (Geri Uyumluluk)
-- **Birim Testleri**: 8/8 Test Başarılı (%100 Geçti)
+- **Birim Testleri**: 10/10 Test Başarılı (%100 Geçti)
 - **Paketleme**: Debian (`.deb`) ve Arch Linux (`.pkg.tar.zst` / `PKGBUILD`) Tamamlandı
 - **Dokümantasyon**: Eksiksiz Master Dokümantasyon Seti
 
@@ -35,6 +35,7 @@ Bu belge, **Pars Linux Boot Repair** (`parslinux-boot-repair`) projesinin geliş
 - [x] XDG Masaüstü dosyası (`org.parslinux.boot-repair.desktop`) oluşturuldu.
 - [x] PolicyKit yetki kuralı (`org.parslinux.pkexec.parslinux-boot-repair.policy`) yazıldı.
 - [x] GLib GResource XML derleme şeması güncellendi.
+- [x] `assets/` içerisindeki tüm PNG ekran görüntüleri GTK4 Libadwaita koyu arayüzüyle yeniden üretildi.
 
 ### [x] Faz 3: Modern GTK 4 + Libadwaita Dönüşümü
 - [x] `AppWindowGtk4.ui`: Modern `AdwApplicationWindow`, `AdwActionRow`, `AdwClamp`, `AdwStatusPage` ile sıfırdan oluşturuldu.
@@ -47,10 +48,18 @@ Bu belge, **Pars Linux Boot Repair** (`parslinux-boot-repair`) projesinin geliş
 - [x] `package.sh`: Hem debian hem arch formatını tek tıkla `dist/` klasörüne çıkaran sistem.
 
 ### [x] Faz 5: Otomatik Test ve CI/CD Altyapısı
-- [x] `tests/test_boot_repair.py`: 8 bağımsız birim ve entegrasyon testi yazıldı.
-- [x] Python ve Bash sözdizimi, PolicyKit XML, GResource XML, GTK4 UI XML ve mock işletim sistemi algılama testleri başarıyla doğrulandı.
+- [x] `tests/test_boot_repair.py`: 10 bağımsız birim ve entegrasyon testi yazıldı.
+- [x] Python ve Bash sözdizimi, PolicyKit XML, GResource XML, GTK4 UI XML, fstab ayrıştırıcı, LUKS/LVM yol doğruluğu ve mock işletim sistemi algılama testleri başarıyla doğrulandı.
 
 ### [x] Faz 6: Master Dokümantasyon Paketi ve Temizlik
 - [x] Master proje standardında 18 markdown dokümanı `docs/` altında hazırlandı.
 - [x] Pardus kaynaklı tüm eski artıklar, atıl symlink'ler ve şemalar temizlendi.
 - [x] Master yol haritası (`PARSLINUX_FORK_PLANI.md`) üzerinde ilgili madde tamamlandı olarak güncellendi.
+
+### [x] Faz 7: Teknik Borç Tasfiyesi (Technical Debt Resolution)
+- [x] Python 3.12/3.14/3.15 deprecation uyarısı veren `load_module()` çağrıları `spec_from_loader` + `exec_module()` standardına geçirildi.
+- [x] `parslinux-chroot` içindeki `export export` çift anahtar kelimesi düzeltildi.
+- [x] `parslinux-open-luks-lvm` mapper yolundaki tutarsız `/` karakteri giderildi.
+- [x] `check-filesystem` içerisine dinamik fsck varlık kontrolü ve genel fsck geri dönüşü eklendi.
+- [x] `dump-info-log` içerisine dosya varlık kontrolü ve evrensel `tar.gz` alternatifi eklendi.
+- [x] `.github/workflows/ci.yml`: GitHub Actions pipeline'ı `actions/checkout@v4` ve otomatik test/deb paketleme adımlarıyla modernize edildi.

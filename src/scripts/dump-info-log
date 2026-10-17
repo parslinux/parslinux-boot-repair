@@ -11,24 +11,39 @@ if [[ ! -x "$MOUNT_BIN" && -f "$(dirname "$0")/parslinux-mount-rootfs" ]]; then
 fi
 "$MOUNT_BIN"
 
-zip "$target/system-log" \
+LOG_FILES=()
+for item in \
     "$DESTDIR"/var/log/auth.log \
     "$DESTDIR"/var/log/boot.log \
     "$DESTDIR"/var/log/daemon.log \
-    "$DESTDIR"/var/log/dmesg.log \
+    "$DESTDIR"/var/log/dmesg* \
     "$DESTDIR"/var/log/dpkg.log \
     "$DESTDIR"/var/log/kern.log \
-    "$DESTDIR"/var/log/syslog.log \
+    "$DESTDIR"/var/log/syslog* \
     "$DESTDIR"/var/log/user.log \
     "$DESTDIR"/var/log/parslinux-installer.log \
     "$DESTDIR"/var/log/pardus-installer.log \
     "$DESTDIR"/etc/hosts \
     "$DESTDIR"/etc/apt/sources.list \
     "$DESTDIR"/etc/apt/sources.list.d/* \
-    "$DESTDIR"/var/log/auth.log \
-    "$DESTDIR"/var/log/Xorg.0.log \
+    "$DESTDIR"/var/log/Xorg*.log \
     "$DESTDIR"/var/lib/dpkg/status \
     "$DESTDIR"/var/log/lightdm/lightdm.log \
     "$DESTDIR"/var/log/apt/*.log \
-    "$DESTDIR"/var/log/lightdm/lightdm.log \
-    "$DESTDIR"/boot/grub/grub.cfg
+    "$DESTDIR"/boot/grub/grub.cfg; do
+    [ -e "$item" ] && LOG_FILES+=("$item")
+done
+
+if [ ${#LOG_FILES[@]} -eq 0 ]; then
+    echo "Warning: No log files found in $DESTDIR"
+    exit 0
+fi
+
+if command -v zip >/dev/null 2>&1; then
+    zip "$target/system-log" "${LOG_FILES[@]}"
+elif command -v tar >/dev/null 2>&1; then
+    tar -czf "$target/system-log.tar.gz" "${LOG_FILES[@]}"
+else
+    echo "Error: Neither zip nor tar found to archive logs."
+    exit 1
+fi

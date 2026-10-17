@@ -21,13 +21,20 @@ scripts_dir = os.path.join(APP_DIR, "scripts")
 if os.path.isdir(scripts_dir):
     os.environ["PATH"] = f"{scripts_dir}:{os.environ.get('PATH', '')}"
 
+import importlib.util
 from importlib.machinery import SourceFileLoader
 search_os_path = os.path.join(APP_DIR, "scripts/search-operating-system")
 if not os.path.exists(search_os_path):
     search_os_path = shutil.which("parslinux-search-operating-system") or shutil.which("search-operating-system") or "/usr/bin/search-operating-system"
 
 try:
-    search_operating_system = SourceFileLoader("search_operating_systems", search_os_path).load_module()
+    loader = SourceFileLoader("search_operating_systems", search_os_path)
+    spec = importlib.util.spec_from_loader("search_operating_systems", loader)
+    if spec:
+        search_operating_system = importlib.util.module_from_spec(spec)
+        loader.exec_module(search_operating_system)
+    else:
+        raise ImportError("Could not load spec for search-operating-system")
 except Exception:
     class DummyOS:
         def search_operating_system(self):
