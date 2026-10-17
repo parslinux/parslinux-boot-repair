@@ -27,7 +27,7 @@ search_operating_system = SourceFileLoader("search_operating_systems", search_os
 try:
     gettext.install("parslinux-boot-repair", "/usr/share/locale/")
 except Exception:
-    gettext.install("pardus-boot-repair", "/usr/share/locale/")
+    pass
 Handy.init()
 
 APPVERSION = "1.2.0"
@@ -41,9 +41,7 @@ except OSError:
 
 gresource_candidates = [
     os.path.join(APP_DIR, "data/org.parslinux.boot-repair.gresource"),
-    os.path.join(APP_DIR, "data/tr.org.pardus.boot-repair.gresource"),
     "/usr/share/parslinux/parslinux-boot-repair/data/org.parslinux.boot-repair.gresource",
-    "/usr/share/pardus/pardus-boot-repair/data/tr.org.pardus.boot-repair.gresource",
 ]
 for gres in gresource_candidates:
     if os.path.exists(gres):
@@ -67,8 +65,7 @@ class Application(Gtk.Application):
             self.builder.add_from_resource(
                 "/org/parslinux/boot-repair/ui/AppWindow.ui")
         except Exception:
-            self.builder.add_from_resource(
-                "/tr/org/pardus/boot-repair/ui/AppWindow.ui")
+            pass
         self.builder.connect_signals(self)
         self.window = self.builder.get_object("window_main")
         self.deck = self.builder.get_object("deck_main")
@@ -328,7 +325,7 @@ class Application(Gtk.Application):
             if self.rootfs.root_subvol != None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
-            reinstall_cmd = "parslinux-reinstall" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-reinstall")) or shutil.which("parslinux-reinstall") else "pardus-reinstall"
+            reinstall_cmd = "parslinux-reinstall" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-reinstall")) else (shutil.which("parslinux-reinstall") or "parslinux-reinstall")
             self.vte_command(reinstall_cmd, post, environ=envs)
 
         def post():
@@ -401,7 +398,7 @@ class Application(Gtk.Application):
             if self.rootfs.root_subvol != None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
-            chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) or shutil.which("parslinux-chroot") else "pardus-chroot"
+            chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) else (shutil.which("parslinux-chroot") or "parslinux-chroot")
             self.vte_command([
                     chroot_bin,
                     "/dev/{}".format(self.rootfs.name),
@@ -457,7 +454,7 @@ class Application(Gtk.Application):
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
 
-            chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) or shutil.which("parslinux-chroot") else "pardus-chroot"
+            chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) else (shutil.which("parslinux-chroot") or "parslinux-chroot")
             self.vte_command([
                     chroot_bin,
                     "/dev/{}".format(self.rootfs.name),

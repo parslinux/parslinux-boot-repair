@@ -9,7 +9,7 @@ fi
 if [[ -b "$1" ]] ; then
     export DESTDIR=$(mktemp -d)
     export disk=$(echo "$1" | sed 's/\/dev\///')
-    MOUNT_BIN="$(command -v parslinux-mount-rootfs || command -v pardus-mount-rootfs || echo "/usr/bin/parslinux-mount-rootfs")"
+    MOUNT_BIN="$(command -v parslinux-mount-rootfs || echo "/usr/bin/parslinux-mount-rootfs")"
     if [[ ! -x "$MOUNT_BIN" && -f "$(dirname "$0")/parslinux-mount-rootfs" ]]; then
         MOUNT_BIN="$(dirname "$0")/parslinux-mount-rootfs"
     fi

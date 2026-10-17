@@ -10,8 +10,6 @@ if [[ -f /usr/bin/parslinux-open-luks-lvm ]]; then
     source /usr/bin/parslinux-open-luks-lvm
 elif [[ -f "$(dirname "$0")/parslinux-open-luks-lvm" ]]; then
     source "$(dirname "$0")/parslinux-open-luks-lvm"
-elif [[ -f /usr/bin/pardus-open-luks-lvm ]]; then
-    source /usr/bin/pardus-open-luks-lvm
 elif command -v parslinux-open-luks-lvm >/dev/null 2>&1; then
     source "$(command -v parslinux-open-luks-lvm)"
 fi

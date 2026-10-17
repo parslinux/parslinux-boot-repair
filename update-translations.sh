@@ -12,8 +12,6 @@ xgettext -o po/parslinux-boot-repair.pot \
     --msgid-bugs-address="https://parslinux.org" \
     src/data/ui/*.ui src/*.py
 
-cp po/parslinux-boot-repair.pot po/pardus-boot-repair.pot
-
 for po_file in po/*.po; do
     [ -f "$po_file" ] || continue
     lang=$(basename "$po_file" .po)

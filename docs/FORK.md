@@ -10,7 +10,8 @@ Bu proje, Pardus ekibi tarafından geliştirilen `pardus-boot-repair` projesi te
    - Eski Pardus logoları ve referansları yerini ParsLinux'un koyu/modern görsel kimliğine, Pars mavisi ve amber/leopar tonlarına bıraktı.
    - `src/data/images/parslinux-boot-repair.svg` sıfırdan vektörel olarak tasarlandı.
    - `.desktop`, `PolicyKit (.policy)` ve `GResource` adlandırmaları `org.parslinux.boot-repair` standartlarına geçirildi.
-   - Geriye dönük uyumluluk için eski `pardus-boot-repair` alias ve sembolik linkleri korundu.
+   - Kod tabanı, sembolik linkler, GResource ve PolicyKit tanımları tamamen bağımsız ve temiz ParsLinux standartlarına kavuşturuldu.
+   - Modern GTK4 ve Libadwaita arayüzü (`AppWindowGtk4.ui` ve `MainGtk4.py`) eklendi, geriye dönük uyumluluk için GTK3 desteği korundu.
 
 2. **Gelişmiş EFI & GRUB Algılama**:
    - `search-operating-system` modülü, EFI bölümlerinde `EFI/parslinux/grubx64.efi` girdisini öncelikli tanıyacak şekilde güncellendi.

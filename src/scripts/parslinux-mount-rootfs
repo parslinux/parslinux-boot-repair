@@ -52,10 +52,8 @@ def unmount_and_get_fs(disk):
 def load_luks_lvm():
     candidates = [
         shutil.which("parslinux-open-luks-lvm"),
-        shutil.which("pardus-open-luks-lvm"),
         os.path.join(os.path.dirname(os.path.realpath(__file__)), "parslinux-open-luks-lvm"),
         "/usr/bin/parslinux-open-luks-lvm",
-        "/usr/bin/pardus-open-luks-lvm",
     ]
     for script_path in candidates:
         if script_path and os.path.exists(script_path):

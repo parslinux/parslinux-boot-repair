@@ -26,7 +26,7 @@ Bu belge, **Pars Linux Boot Repair** (`parslinux-boot-repair`) projesinin geliş
 
 ### [x] Faz 1: Çekirdek Betiklerin Dönüştürülmesi
 - [x] `parslinux-chroot`, `parslinux-mount-rootfs`, `parslinux-open-luks-lvm`, `parslinux-reinstall` adlandırmaları yapıldı.
-- [x] Eski betik isimleri için sembolik bağlar (`symlinks`) oluşturuldu.
+- [x] Eski pardus sembolik bağları, XML şemaları ve kalıntıları temizlenerek saf ParsLinux yapısına kavuşturuldu.
 - [x] `search-operating-system`: EFI bölümlerinde `EFI/parslinux/grubx64.efi` öncelikli tanıma eklendi.
 - [x] `grub-reinstall`: Sabit kodlanmış Windows UEFI baypası hem `parslinux` hem `pardus` hedeflerine genişletildi.
 
@@ -49,4 +49,8 @@ Bu belge, **Pars Linux Boot Repair** (`parslinux-boot-repair`) projesinin geliş
 ### [x] Faz 5: Otomatik Test ve CI/CD Altyapısı
 - [x] `tests/test_boot_repair.py`: 8 bağımsız birim ve entegrasyon testi yazıldı.
 - [x] Python ve Bash sözdizimi, PolicyKit XML, GResource XML, GTK4 UI XML ve mock işletim sistemi algılama testleri başarıyla doğrulandı.
+
+### [x] Faz 6: Master Dokümantasyon Paketi ve Temizlik
+- [x] Master proje standardında 18 markdown dokümanı `docs/` altında hazırlandı.
+- [x] Pardus kaynaklı tüm eski artıklar, atıl symlink'ler ve şemalar temizlendi.
 - [x] Master yol haritası (`PARSLINUX_FORK_PLANI.md`) üzerinde ilgili madde tamamlandı olarak güncellendi.

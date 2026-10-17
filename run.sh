@@ -31,7 +31,6 @@ show_help() {
 compile_assets() {
     echo -e "${BLUE}==>${NC} Compiling GResource..."
     (cd src/data && glib-compile-resources org.parslinux.boot-repair.gresource.xml --target=org.parslinux.boot-repair.gresource)
-    cp -f src/data/org.parslinux.boot-repair.gresource src/data/tr.org.pardus.boot-repair.gresource 2>/dev/null || true
 
     echo -e "${BLUE}==>${NC} Generating version stamp..."
     if [ -f debian/changelog ]; then

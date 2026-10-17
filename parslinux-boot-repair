@@ -16,8 +16,6 @@ if [ -d "$DIR/src" ]; then
     APP_DIR="$DIR/src"
 elif [ -d "/usr/share/parslinux/parslinux-boot-repair" ]; then
     APP_DIR="/usr/share/parslinux/parslinux-boot-repair"
-elif [ -d "/usr/share/pardus/pardus-boot-repair" ]; then
-    APP_DIR="/usr/share/pardus/pardus-boot-repair"
 else
     APP_DIR="$DIR"
 fi
