@@ -1,38 +1,65 @@
-#!/usr/bin/env python3
-import sys
-import os
+#!/usr/bin/env bash
+# ==============================================================================
+# Pars Linux Boot Repair — Universal Launcher
+# ==============================================================================
+set -e
 
-# Check if we should elevate to root via pkexec
-if os.geteuid() != 0 and os.environ.get("NO_PKEXEC", "0") != "1":
-    args = ["pkexec"] + sys.argv
-    try:
-        os.execvp("pkexec", args)
-    except Exception as e:
-        print(f"Failed to elevate with pkexec: {e}", file=sys.stderr)
-        sys.exit(1)
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Determine app directory (local repo vs installed package)
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-if os.path.isdir(os.path.join(SCRIPT_DIR, "src")):
-    sys.path.insert(0, os.path.join(SCRIPT_DIR, "src"))
-elif os.path.isdir("/usr/share/parslinux/parslinux-boot-repair/"):
-    sys.path.insert(0, "/usr/share/parslinux/parslinux-boot-repair/")
-elif os.path.isdir("/usr/share/pardus/pardus-boot-repair/"):
-    sys.path.insert(0, "/usr/share/pardus/pardus-boot-repair/")
+# Ensure X11/Wayland root authorization if run via pkexec/sudo
+if [ -n "$DISPLAY" ] && command -v xhost >/dev/null 2>&1; then
+    xhost +si:localuser:root >/dev/null 2>&1 || true
+fi
 
-# Check if GTK3 fallback is requested
-use_gtk3 = "--gtk3" in sys.argv
-if use_gtk3:
-    sys.argv.remove("--gtk3")
+# Detect application root
+if [ -d "$DIR/src" ]; then
+    APP_DIR="$DIR/src"
+elif [ -d "/usr/share/parslinux/parslinux-boot-repair" ]; then
+    APP_DIR="/usr/share/parslinux/parslinux-boot-repair"
+elif [ -d "/usr/share/pardus/pardus-boot-repair" ]; then
+    APP_DIR="/usr/share/pardus/pardus-boot-repair"
+else
+    APP_DIR="$DIR"
+fi
 
-if not use_gtk3:
-    try:
-        import MainGtk4
-        sys.exit(MainGtk4.main())
-    except Exception as e:
-        # Fallback to GTK3 if GTK4 / Libadwaita is not available
-        import Main
-        sys.exit(Main.main() if hasattr(Main, "main") else 0)
-else:
-    import Main
-    sys.exit(Main.main() if hasattr(Main, "main") else 0)
+export PYTHONPATH="$APP_DIR:$PYTHONPATH"
+export PATH="$APP_DIR/scripts:$PATH"
+
+# Check if elevated privileges are needed
+if [ "$EUID" -ne 0 ] && [ "${NO_PKEXEC:-0}" != "1" ]; then
+    # Pass necessary GUI environment variables through pkexec
+    PKEXEC_ENV=()
+    [ -n "$DISPLAY" ] && PKEXEC_ENV+=("DISPLAY=$DISPLAY")
+    [ -n "$XAUTHORITY" ] && PKEXEC_ENV+=("XAUTHORITY=$XAUTHORITY")
+    [ -n "$WAYLAND_DISPLAY" ] && PKEXEC_ENV+=("WAYLAND_DISPLAY=$WAYLAND_DISPLAY")
+    [ -n "$XDG_RUNTIME_DIR" ] && PKEXEC_ENV+=("XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR")
+    
+    if command -v pkexec >/dev/null 2>&1; then
+        exec pkexec env "${PKEXEC_ENV[@]}" "$0" "$@"
+    elif command -v sudo >/dev/null 2>&1; then
+        exec sudo -E "$0" "$@"
+    fi
+fi
+
+# Check UI preference
+USE_GTK3=0
+ARGS=()
+for arg in "$@"; do
+    if [ "$arg" == "--gtk3" ]; then
+        USE_GTK3=1
+    elif [ "$arg" == "--gtk4" ]; then
+        USE_GTK3=0
+    else
+        ARGS+=("$arg")
+    fi
+done
+
+# Try modern GTK4 / Libadwaita first unless GTK3 is requested
+if [ "$USE_GTK3" -eq 0 ]; then
+    if python3 -c "import gi; gi.require_version('Gtk', '4.0'); gi.require_version('Adw', '1'); gi.require_version('Vte', '3.91')" 2>/dev/null; then
+        exec python3 "$APP_DIR/MainGtk4.py" "${ARGS[@]}"
+    fi
+fi
+
+# Fallback to GTK3 / Libhandy
+exec python3 "$APP_DIR/Main.py" "${ARGS[@]}"

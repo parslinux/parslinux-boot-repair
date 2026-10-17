@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Pars Linux Boot Repair — Local Development & Execution Script
+# Pars Linux Boot Repair — Local Development & Execution Script (run.sh)
 # ==============================================================================
 set -e
 
@@ -11,20 +11,20 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+BOLD='\033[1m'
 NC='\033[0m'
 
 show_help() {
-    echo -e "${BLUE}Pars Linux Boot Repair — Development Runner${NC}"
-    echo "Usage: ./run.sh [OPTIONS]"
+    echo -e "${BLUE}${BOLD}Pars Linux Boot Repair — Local Development Runner${NC}"
+    echo "Usage: ./run.sh [OPTIONS] [ARGS...]"
     echo ""
     echo "Options:"
     echo "  -h, --help        Show this help message and exit"
     echo "  -t, --test        Run the automated test suite"
-    echo "  -d, --dev         Run directly without Polkit pkexec escalation"
-    echo "  --gtk3            Force run with legacy GTK3 + Libhandy backend"
-    echo "  --gtk4            Run with modern GTK4 + Libadwaita backend (Default)"
+    echo "  --root            Elevate with pkexec/sudo (System Administrator mode)"
+    echo "  --gtk3            Force legacy GTK3 + Libhandy interface"
+    echo "  --gtk4            Run modern GTK4 + Libadwaita interface (Default)"
     echo "  -c, --compile     Compile GResource and locale MO files only"
-    echo "  -v, --verbose     Verbose output"
     echo ""
 }
 
@@ -51,41 +51,35 @@ compile_assets() {
     fi
 }
 
-RUN_DEV=0
 RUN_TEST=0
 COMPILE_ONLY=0
-FORCE_GTK3=0
+USE_ROOT=0
+UI_MODE="gtk4"
+EXTRA_ARGS=()
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
+for arg in "$@"; do
+    case "$arg" in
         -h|--help)
             show_help
             exit 0
             ;;
         -t|--test)
             RUN_TEST=1
-            shift
             ;;
-        -d|--dev|--no-root)
-            RUN_DEV=1
-            shift
+        --root)
+            USE_ROOT=1
             ;;
         --gtk3)
-            FORCE_GTK3=1
-            shift
+            UI_MODE="gtk3"
             ;;
         --gtk4)
-            FORCE_GTK3=0
-            shift
+            UI_MODE="gtk4"
             ;;
         -c|--compile)
             COMPILE_ONLY=1
-            shift
             ;;
         *)
-            echo -e "${RED}Unknown option: $1${NC}"
-            show_help
-            exit 1
+            EXTRA_ARGS+=("$arg")
             ;;
     esac
 done
@@ -93,33 +87,33 @@ done
 compile_assets
 
 if [ "$COMPILE_ONLY" -eq 1 ]; then
-    echo -e "${GREEN}Assets compiled successfully.${NC}"
+    echo -e "${GREEN}✓ Assets compiled successfully.${NC}"
     exit 0
 fi
 
 if [ "$RUN_TEST" -eq 1 ]; then
     echo -e "${YELLOW}==>${NC} Running test suite..."
-    python3 -m unittest discover -s tests -v
-    exit 0
+    exec python3 -m unittest discover -s tests -v
 fi
 
 export PATH="$DIR/src/scripts:$PATH"
 export PYTHONPATH="$DIR/src:$PYTHONPATH"
 
-if [ "$RUN_DEV" -eq 1 ]; then
-    export NO_PKEXEC=1
-    if [ "$FORCE_GTK3" -eq 1 ]; then
-        echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (Dev GTK3 mode)..."
-        python3 src/Main.py "$@"
-    else
-        echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (Dev GTK4 / Libadwaita mode)..."
-        python3 src/MainGtk4.py "$@"
+# Allow root on local display if running with elevation
+if [ "$USE_ROOT" -eq 1 ]; then
+    if [ -n "$DISPLAY" ] && command -v xhost >/dev/null 2>&1; then
+        xhost +si:localuser:root >/dev/null 2>&1 || true
     fi
+    echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (Root Mode)..."
+    exec ./parslinux-boot-repair "--$UI_MODE" "${EXTRA_ARGS[@]}"
 else
-    echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair..."
-    if [ "$FORCE_GTK3" -eq 1 ]; then
-        ./parslinux-boot-repair --gtk3 "$@"
+    # Default: Run directly in user session for seamless development & preview
+    export NO_PKEXEC=1
+    if [ "$UI_MODE" == "gtk3" ]; then
+        echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (GTK 3 Mode)..."
+        exec python3 src/Main.py "${EXTRA_ARGS[@]}"
     else
-        ./parslinux-boot-repair "$@"
+        echo -e "${GREEN}==>${NC} Starting Pars Linux Boot Repair (GTK 4 / Libadwaita Mode)..."
+        exec python3 src/MainGtk4.py "${EXTRA_ARGS[@]}"
     fi
 fi
