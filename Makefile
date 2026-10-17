@@ -2,39 +2,60 @@
 DESTDIR ?= /
 PREFIX ?= /usr
 BIN_DIR := $(DESTDIR)$(PREFIX)/bin
-SHARE_DIR := $(DESTDIR)$(PREFIX)/share/pardus/pardus-boot-repair
-ICON_DIR := $(DESTDIR)$(PREFIX)/share/icons
+SHARE_DIR := $(DESTDIR)$(PREFIX)/share/parslinux/parslinux-boot-repair
+LEGACY_SHARE_DIR := $(DESTDIR)$(PREFIX)/share/pardus/pardus-boot-repair
+ICON_DIR := $(DESTDIR)$(PREFIX)/share/icons/hicolor/scalable/apps
+LEGACY_ICON_DIR := $(DESTDIR)$(PREFIX)/share/icons
 POLKIT_DIR := $(DESTDIR)$(PREFIX)/share/polkit-1/actions
 LOCALE_DIR := $(DESTDIR)$(PREFIX)/share/locale
 DESKTOP_DIR := $(DESTDIR)$(PREFIX)/share/applications
 
-.PHONY: all build install buildmo pot gresource version clean run
+.PHONY: all build install buildmo pot gresource version clean run test
 
 all: build
 
-install: gresource version
+install: gresource version buildmo
 	install -d $(BIN_DIR)
-	install pardus-boot-repair $(BIN_DIR)
-	install src/scripts/* $(BIN_DIR)
+	install -m 755 parslinux-boot-repair $(BIN_DIR)/parslinux-boot-repair
+	ln -sf parslinux-boot-repair $(BIN_DIR)/pardus-boot-repair
+	find src/scripts -maxdepth 1 -type f -exec install -m 755 {} $(BIN_DIR)/ \;
+	@for link in $$(find src/scripts -maxdepth 1 -type l); do \
+		cp -P $$link $(BIN_DIR)/; \
+	done
+	
 	install -d $(SHARE_DIR)
-	cp -a src/* $(SHARE_DIR)
+	cp -a src/* $(SHARE_DIR)/
+	install -d $(DESTDIR)$(PREFIX)/share/pardus
+	ln -sfn $(PREFIX)/share/parslinux/parslinux-boot-repair $(LEGACY_SHARE_DIR)
+	
 	install -d $(ICON_DIR)
-	install src/data/images/pardus-boot-repair.svg $(ICON_DIR)
+	install -m 644 src/data/images/parslinux-boot-repair.svg $(ICON_DIR)/parslinux-boot-repair.svg
+	ln -sf parslinux-boot-repair.svg $(ICON_DIR)/pardus-boot-repair.svg
+	install -d $(LEGACY_ICON_DIR)
+	install -m 644 src/data/images/parslinux-boot-repair.svg $(LEGACY_ICON_DIR)/parslinux-boot-repair.svg
+	ln -sf parslinux-boot-repair.svg $(LEGACY_ICON_DIR)/pardus-boot-repair.svg
+	
 	install -d $(POLKIT_DIR)
+	install -m 644 src/data/org.parslinux.pkexec.parslinux-boot-repair.policy $(POLKIT_DIR)/org.parslinux.pkexec.parslinux-boot-repair.policy
+	ln -sf org.parslinux.pkexec.parslinux-boot-repair.policy $(POLKIT_DIR)/tr.org.pardus-boot-repair.policy
+	
 	install -d $(DESKTOP_DIR)
-	install src/data/tr.org.pardus-boot-repair.policy $(POLKIT_DIR)
-	install src/data/tr.org.pardus-boot-repair.desktop $(DESKTOP_DIR)
+	install -m 644 src/data/org.parslinux.boot-repair.desktop $(DESKTOP_DIR)/org.parslinux.boot-repair.desktop
+	ln -sf org.parslinux.boot-repair.desktop $(DESKTOP_DIR)/tr.org.pardus-boot-repair.desktop
+	ln -sf org.parslinux.boot-repair.desktop $(DESKTOP_DIR)/tr.org.parslinux.boot-repair.desktop
 
 	@for file in $(wildcard po/*.po); do \
 		lang=$$(basename $$file .po); \
 		install -d $(LOCALE_DIR)/$$lang/LC_MESSAGES/; \
-		install mo/$$lang.mo $(LOCALE_DIR)/$$lang/LC_MESSAGES/pardus-boot-repair.mo; \
+		install -m 644 mo/$$lang.mo $(LOCALE_DIR)/$$lang/LC_MESSAGES/parslinux-boot-repair.mo; \
+		ln -sf parslinux-boot-repair.mo $(LOCALE_DIR)/$$lang/LC_MESSAGES/pardus-boot-repair.mo; \
 	done
 
 build: gresource buildmo version
 
 gresource:
-	(cd src/data && glib-compile-resources tr.org.pardus.boot-repair.gresource.xml)
+	(cd src/data && glib-compile-resources org.parslinux.boot-repair.gresource.xml --target=org.parslinux.boot-repair.gresource)
+	(cd src/data && cp -f org.parslinux.boot-repair.gresource tr.org.pardus.boot-repair.gresource)
 
 buildmo:
 	@echo "Building .mo files..."
@@ -45,19 +66,23 @@ buildmo:
 	done
 
 version:
-	sed -n '1s/^[^(]*(\([^)]*\)).*/\1/p' debian/changelog > src/__version__
+	@if [ -f debian/changelog ]; then \
+		sed -n '1s/^[^(]*(\([^)]*\)).*/\1/p' debian/changelog > src/__version__; \
+	else \
+		echo "1.2.0" > src/__version__; \
+	fi
 
 pot:
-	xgettext -o po/pardus-boot-repair.pot --from-code=utf-8 src/data/ui/*.ui src/*.py
-	@for file in $(wildcard po/*.po); do \
-		msgmerge $$file po/pardus-boot-repair.pot -o $$file.new; \
-		rm -f $$file; \
-		mv $$file.new $$file; \
-	done
+	./update-translations.sh
 
 clean:
-	rm -f src/data/tr.org.pardus.boot-repair.gresource src/__version__
+	rm -f src/data/*.gresource src/__version__
 	rm -rf mo
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 run: gresource version
 	python3 src/Main.py
+
+test:
+	python3 -m unittest discover -s tests -v

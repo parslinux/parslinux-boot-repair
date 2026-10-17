@@ -1,13 +1,19 @@
-Source: pardus-boot-repair
+Source: parslinux-boot-repair
 Section: utils
 Priority: optional
-Maintainer: Ali Riza KESKIN <ali.riza.keskin@pardus.org.tr>
-Build-Depends: make, libglib2.0-dev-bin, gettext
-Standards-Version: 4.3.0
-Homepage: https://pardus.org.tr
+Maintainer: Pars Linux Developers <dev@parslinux.org>
+Build-Depends: make, libglib2.0-dev-bin, gettext, debhelper (>= 11)
+Standards-Version: 4.6.0
+Homepage: https://parslinux.org
 
-Package: pardus-boot-repair
+Package: parslinux-boot-repair
 Architecture: all
-Depends: ${misc:Depends}, libc6, live-boot, zip, libhandy-1-0, libvte-2.91-0, gir1.2-handy-1
-Description: Pardus boot repair
- Pardus boot repair tool
+Provides: pardus-boot-repair (= ${binary:Version})
+Replaces: pardus-boot-repair (<= 1.1.0)
+Conflicts: pardus-boot-repair
+Depends: ${misc:Depends}, python3 (>= 3.8), python3-gi, gir1.2-gtk-3.0, gir1.2-handy-1, gir1.2-vte-2.91, libc6, live-boot, zip, cryptsetup, lvm2, btrfs-progs, e2fsprogs, dosfstools, efibootmgr, parted
+Description: Pars Linux boot and system repair tool
+ Pars Linux Boot Repair provides graphical and automated tools to repair
+ damaged GRUB and EFI bootloaders, perform filesystem checks (ext4, btrfs),
+ chroot into installed rootfs systems, reset user passwords, and fix
+ broken APT packages.

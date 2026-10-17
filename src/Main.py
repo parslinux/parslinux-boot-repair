@@ -10,15 +10,27 @@ gi.require_version("Handy", "1")
 gi.require_version("Vte", "2.91")
 from gi.repository import Gtk, Handy, Gdk, Gio, GLib, Vte
 
-from importlib.machinery import SourceFileLoader
-search_operating_system = SourceFileLoader("search_operating_systems", "/usr/bin/search-operating-system").load_module()
-
-gettext.install("pardus-boot-repair", "/usr/share/locale/")
-Handy.init()
-
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
-APPVERSION = "unknown"
+# Prioritize local scripts directory in PATH
+scripts_dir = os.path.join(APP_DIR, "scripts")
+if os.path.isdir(scripts_dir):
+    os.environ["PATH"] = f"{scripts_dir}:{os.environ.get('PATH', '')}"
+
+from importlib.machinery import SourceFileLoader
+search_os_path = os.path.join(APP_DIR, "scripts/search-operating-system")
+if not os.path.exists(search_os_path):
+    import shutil
+    search_os_path = shutil.which("parslinux-search-operating-system") or shutil.which("search-operating-system") or "/usr/bin/search-operating-system"
+search_operating_system = SourceFileLoader("search_operating_systems", search_os_path).load_module()
+
+try:
+    gettext.install("parslinux-boot-repair", "/usr/share/locale/")
+except Exception:
+    gettext.install("pardus-boot-repair", "/usr/share/locale/")
+Handy.init()
+
+APPVERSION = "1.2.0"
 try:
     with open(
         os.path.join(APP_DIR, "__version__"), encoding="utf-8"
@@ -27,24 +39,36 @@ try:
 except OSError:
     pass
 
-resource = Gio.resource_load(
-    APP_DIR + "/data/tr.org.pardus.boot-repair.gresource")
-Gio.Resource._register(resource)
+gresource_candidates = [
+    os.path.join(APP_DIR, "data/org.parslinux.boot-repair.gresource"),
+    os.path.join(APP_DIR, "data/tr.org.pardus.boot-repair.gresource"),
+    "/usr/share/parslinux/parslinux-boot-repair/data/org.parslinux.boot-repair.gresource",
+    "/usr/share/pardus/pardus-boot-repair/data/tr.org.pardus.boot-repair.gresource",
+]
+for gres in gresource_candidates:
+    if os.path.exists(gres):
+        resource = Gio.resource_load(gres)
+        Gio.Resource._register(resource)
+        break
 
 
 class Application(Gtk.Application):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
-            application_id="tr.org.pardus.boot-repair",
+            application_id="org.parslinux.boot-repair",
             **kwargs
         )
-        GLib.set_prgname("tr.org.pardus-boot-repair")
+        GLib.set_prgname("parslinux-boot-repair")
 
         # main
         self.builder = Gtk.Builder()
-        self.builder.add_from_resource(
-            "/tr/org/pardus/boot-repair/ui/AppWindow.ui")
+        try:
+            self.builder.add_from_resource(
+                "/org/parslinux/boot-repair/ui/AppWindow.ui")
+        except Exception:
+            self.builder.add_from_resource(
+                "/tr/org/pardus/boot-repair/ui/AppWindow.ui")
         self.builder.connect_signals(self)
         self.window = self.builder.get_object("window_main")
         self.deck = self.builder.get_object("deck_main")
@@ -191,7 +215,7 @@ class Application(Gtk.Application):
                 _("On some systems, the BIOS may not detect grub until installed as a removable device. Do you want to install grub as a removable device? You should only say yes if you cannot boot into the system after installation."))
 
             self.update_status_page(_("Reinstalling GRUB Bootloader"), "content-loading-symbolic", _(
-                "We're reinstalling the GRUB boot loader to ensure your system can start up properly. This process may take a few moments. Once complete, your computer should boot into Pardus as usual."), False, False)
+                "We're reinstalling the GRUB boot loader to ensure your system can start up properly. This process may take a few moments. Once complete, your computer should boot into ParsLinux as usual."), False, False)
 
             envs = [
                 "disk={}".format(self.rootfs.name),
@@ -245,7 +269,7 @@ class Application(Gtk.Application):
             password2 = self.password_page.entry_second.get_text()
 
             self.update_status_page(_("Resetting password"), "content-loading-symbolic", _(
-                "We're resetting your password to provide access to your account. This process will only take a moment. Once complete, you'll be able to log in with your new password into your Pardus system."), False, False)
+                "We're resetting your password to provide access to your account. This process will only take a moment. Once complete, you'll be able to log in with your new password into your ParsLinux system."), False, False)
 
             envs = [
                 "disk={}".format(self.rootfs.name),
@@ -304,7 +328,8 @@ class Application(Gtk.Application):
             if self.rootfs.root_subvol != None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
-            self.vte_command("pardus-reinstall", post, environ=envs)
+            reinstall_cmd = "parslinux-reinstall" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-reinstall")) or shutil.which("parslinux-reinstall") else "pardus-reinstall"
+            self.vte_command(reinstall_cmd, post, environ=envs)
 
         def post():
             self.update_status_page(_("System Reinstallation Completed"), "emblem-ok-symbolic", _(
@@ -376,8 +401,9 @@ class Application(Gtk.Application):
             if self.rootfs.root_subvol != None:
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
+            chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) or shutil.which("parslinux-chroot") else "pardus-chroot"
             self.vte_command([
-                    "pardus-chroot",
+                    chroot_bin,
                     "/dev/{}".format(self.rootfs.name),
                     "su", self.user, "-c",
                     "cd ; rm -rvf .dbus .cache .local .config"
@@ -431,8 +457,9 @@ class Application(Gtk.Application):
                 envs += ["subvolume={}".format(self.rootfs.root_subvol)]
 
 
+            chroot_bin = "parslinux-chroot" if os.path.exists(os.path.join(APP_DIR, "scripts/parslinux-chroot")) or shutil.which("parslinux-chroot") else "pardus-chroot"
             self.vte_command([
-                    "pardus-chroot",
+                    chroot_bin,
                     "/dev/{}".format(self.rootfs.name),
                     "su", "-", self.user
                 ], post, False, environ=envs)

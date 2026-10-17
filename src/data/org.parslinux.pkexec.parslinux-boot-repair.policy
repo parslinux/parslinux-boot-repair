@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+
+<policyconfig>
+  <vendor>Pars Linux Developers</vendor>
+  <vendor_url>https://parslinux.org</vendor_url>
+
+  <action id="org.parslinux.boot-repair">
+    <description>Pars Linux Boot Repair</description>
+    <description xml:lang="tr">Pars Linux Başlangıç Onarma</description>
+    <message>Authentication is required to perform boot and system repairs</message>
+    <message xml:lang="tr">Önyükleme ve sistem onarımı gerçekleştirmek için yetkilendirme gerekiyor</message>
+    <icon_name>parslinux-boot-repair</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/parslinux-boot-repair</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+
+  <action id="tr.org.pardus.boot-repair">
+    <description>Pardus Boot Repair (Legacy Compatibility)</description>
+    <description xml:lang="tr">Pardus Başlangıç Onarma (Uyumluluk)</description>
+    <message>Authentication is required for boot repair</message>
+    <message xml:lang="tr">Başlangıç onarma için yetkilendirme gerekiyor</message>
+    <icon_name>parslinux-boot-repair</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/bin/pardus-boot-repair</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+</policyconfig>

@@ -1,3 +1,15 @@
+parslinux-boot-repair (1.2.0-parslinux1) unstable; urgency=medium
+
+  * Forked from pardus-boot-repair for Pars Linux project.
+  * Rebranded user interface and artwork with Pars Linux theme.
+  * Added ParsLinux EFI bootloader support (/boot/efi/parslinux/).
+  * Added fallback support for both parslinux-* and legacy pardus-* scripts.
+  * Updated desktop entry, PolicyKit policies, and GResource schemas.
+  * Added multi-distro and headless development test suite.
+  * Added standalone developer scripts (run, stop, package, manage).
+
+ -- Pars Linux Developers <dev@parslinux.org>  Sat, 17 Oct 2026 13:30:00 +0300
+
 pardus-boot-repair (1.1.0) unstable; urgency=medium
 
   [ Ali Riza KESKIN ]

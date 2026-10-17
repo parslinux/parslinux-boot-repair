@@ -36,8 +36,14 @@ def detect_os(path):
             pass
     elif os.path.isfile(f"{path}/Windows/System32/ntoskrnl.exe"):
         return "Windows"
+    elif os.path.isfile(f"{path}/EFI/parslinux/grubx64.efi"):
+        return "ParsLinux (EFI)"
     elif os.path.isfile(f"{path}/EFI/pardus/grubx64.efi"):
         return "Pardus (EFI)"
+    elif os.path.isfile(f"{path}/EFI/debian/grubx64.efi"):
+        return "Debian (EFI)"
+    elif os.path.isfile(f"{path}/EFI/arch/grubx64.efi"):
+        return "Arch Linux (EFI)"
     elif os.path.isfile(f"{path}/EFI/Microsoft/Boot/bootmgfw.efi"):
         return "Windows (EFI)"
     elif os.path.isdir(f"{path}/EFI"):
@@ -45,13 +51,14 @@ def detect_os(path):
     return None
 
 def search_operating_system():
-    # check live
-    try:
-        with open("/proc/cmdline", "r") as f:
-            if "boot=live" not in f.read():
-                return []
-    except Exception:
-        return []
+    # check live - allows override with ALLOW_NON_LIVE=1 environment variable
+    if os.environ.get("ALLOW_NON_LIVE", "0") != "1":
+        try:
+            with open("/proc/cmdline", "r") as f:
+                if "boot=live" not in f.read():
+                    return []
+        except Exception:
+            return []
 
     # list partitions (handles SATA sda, NVMe nvme0n1p1, eMMC mmcblk0p1, VirtIO vda, etc.)
     parts = []

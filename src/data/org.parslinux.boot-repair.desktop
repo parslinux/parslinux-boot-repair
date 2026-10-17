@@ -1,0 +1,18 @@
+[Desktop Entry]
+Name=Pars Linux Boot Repair
+Name[tr]=Pars Linux Başlangıç Onarma
+Name[pt]=Reparador de Inicialização Pars Linux
+GenericName=Boot Repair
+GenericName[tr]=Başlangıç Onarma
+GenericName[pt]=Reparador de Inicialização
+Comment=Pars Linux boot and system repair tool (GRUB, EFI, Chroot, Password Reset)
+Comment[tr]=Pars Linux önyükleme ve sistem onarma aracı (GRUB, EFI, Chroot, Parola Sıfırlama)
+Comment[pt]=Ferramenta de reparação de arranque e sistema Pars Linux (GRUB, EFI, Chroot, Redefinição de Senha)
+Exec=parslinux-boot-repair
+Icon=parslinux-boot-repair
+Terminal=false
+Type=Application
+Categories=System;Settings;GTK;X-ParsLinux-Apps;
+StartupWMClass=org.parslinux.boot-repair
+Keywords=boot;repair;grub;efi;mbr;chroot;rescue;recovery;onarma;baslangic;
+X-ParsLinux-Apps=true

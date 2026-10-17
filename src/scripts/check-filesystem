@@ -6,7 +6,15 @@ while [[ ! -b /dev/$disk ]] ; do
 done
 fs="$(lsblk -rno FSTYPE /dev/$disk | head -n 1)"
 
-source /usr/bin/pardus-open-luks-lvm
+if [[ -f /usr/bin/parslinux-open-luks-lvm ]]; then
+    source /usr/bin/parslinux-open-luks-lvm
+elif [[ -f "$(dirname "$0")/parslinux-open-luks-lvm" ]]; then
+    source "$(dirname "$0")/parslinux-open-luks-lvm"
+elif [[ -f /usr/bin/pardus-open-luks-lvm ]]; then
+    source /usr/bin/pardus-open-luks-lvm
+elif command -v parslinux-open-luks-lvm >/dev/null 2>&1; then
+    source "$(command -v parslinux-open-luks-lvm)"
+fi
 
 set -e
 if [[ "$fs" == "ext4" ]] ; then

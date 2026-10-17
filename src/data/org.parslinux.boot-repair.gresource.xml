@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/parslinux/boot-repair">
+    <file compressed="true">ui/AppWindow.ui</file>
+    <file>images/parslinux-boot-repair.svg</file>
+    <file alias="images/pardus-boot-repair.svg">images/parslinux-boot-repair.svg</file>
+  </gresource>
+  <gresource prefix="/tr/org/pardus/boot-repair">
+    <file alias="ui/AppWindow.ui" compressed="true">ui/AppWindow.ui</file>
+    <file alias="images/pardus-boot-repair.svg">images/parslinux-boot-repair.svg</file>
+  </gresource>
+</gresources>

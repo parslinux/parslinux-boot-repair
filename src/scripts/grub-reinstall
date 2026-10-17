@@ -6,7 +6,11 @@ while [[ ! -b /dev/$mbr ]] ; do
     echo -n "Grub disk >>> "
     read mbr
 done
-/usr/bin/pardus-mount-rootfs
+MOUNT_BIN="$(command -v parslinux-mount-rootfs || command -v pardus-mount-rootfs || echo "/usr/bin/parslinux-mount-rootfs")"
+if [[ ! -x "$MOUNT_BIN" && -f "$(dirname "$0")/parslinux-mount-rootfs" ]]; then
+    MOUNT_BIN="$(dirname "$0")/parslinux-mount-rootfs"
+fi
+"$MOUNT_BIN"
 
 if [[ -d /sys/firmware/efi/ ]]
 then
@@ -43,16 +47,19 @@ chroot "$DESTDIR" apt install --reinstall ${legacy:+grub-pc-bin} ${efi64:+grub-e
 set -e
 chroot "$DESTDIR" grub-install --force /dev/$mbr $removable_arg
 
-# EFI hack for hardcoded winzort bootloader bioses.
-if [[ -f "$DESTDIR/boot/efi/pardus/bootx64.efi" ]] ; then # amd64 only
-    mkdir -p "$DESTDIR/boot/efi/EFI/Microsoft/Boot/"
-    if [[ -f "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" ]] ; then
-        mv "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" \
-            "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw-winzort.efi"
+# EFI hack for hardcoded vendor/windows bootloader bioses.
+for boot_target in "parslinux" "pardus"; do
+    if [[ -f "$DESTDIR/boot/efi/$boot_target/bootx64.efi" ]] ; then # amd64 only
+        mkdir -p "$DESTDIR/boot/efi/EFI/Microsoft/Boot/"
+        if [[ -f "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" ]] && [[ ! -f "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw-winzort.efi" ]] ; then
+            mv "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" \
+                "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw-winzort.efi"
+        fi
+        cp "$DESTDIR/boot/efi/$boot_target/bootx64.efi" \
+            "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi"
+        break
     fi
-    cp "$DESTDIR/boot/efi/pardus/bootx64.efi" \
-        "$DESTDIR/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi"
-fi
+done
 
 chroot "$DESTDIR" grub-mkconfig -o /boot/grub/grub.cfg
 if [[ -d /sys/firmware/efi/ ]] ; then
